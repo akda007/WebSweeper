@@ -1,3 +1,12 @@
+@font-face {
+    font-family: Joystix;
+    src: url("./joystix\ monospace.otf");
+}
+
+.game-font {
+    font-family: Joystix;
+}
+
 .field-grid {
     display: flex;
     flex-direction: column;
@@ -10,14 +19,23 @@
 }
 
 .spot {
-    content: "x";
     border: 1px solid black;
     width: 50px;
     height: 50px;
     text-align: center;
     justify-content: center;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
+
+.spot span {
+    font-size: 25px;
+}
+
 
 [status="reveled"] {
     background-color: white;
@@ -28,30 +46,30 @@
 }
 
 
-[num="1"] {
+[num="1"][data-flagged="false"] {
     color: blue;
 }
-[num="2"] {
+[num="2"][data-flagged="false"] {
     color: rgb(46, 128, 14);
 }
-[num="3"] {
+[num="3"][data-flagged="false"] {
     color: rgb(112, 148, 15);
 }
-[num="4"] {
+[num="4"][data-flagged="false"] {
     color: rgb(185, 160, 19);
 }
-[num="5"] {
+[num="5"][data-flagged="false"] {
     color: rgb(182, 134, 29);
 }
 
-[num="6"] {
+[num="6"][data-flagged="false"] {
     color: rgb(192, 82, 9);
 }
 
-[num="7"] {
+[num="7"][data-flagged="false"] {
     color: rgb(255, 0, 0);
 }
 
-[num="8"] {
+[num="8"][data-flagged="false"] {
     color: rgb(68, 1, 1);
 }

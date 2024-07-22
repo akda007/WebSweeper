@@ -6,8 +6,11 @@ const fieldGrid = document.querySelector("#field-grid")
 
 const fieldData = Array(fieldHeight).fill(Array()).map(() => Array(fieldWidth).fill(0))
 
-let clear_steps = 20;
+let clearSteps = 5;
 
+function writeText(element, text) {
+    element.querySelector("span").innerText = text
+}
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -22,7 +25,7 @@ const explodeField = async () => {
     for (let i = 0; i < fieldHeight; i++) {
         for (let j = 0; j < fieldHeight; j++) {
             if (fieldData[i][j] === 1) {
-                getHtmlSpot(i, j).innerText = "X";
+                writeText(getHtmlSpot(i, j), "bomb")
                 await delay(10);
             }
         }
@@ -32,7 +35,8 @@ const explodeField = async () => {
 const getHtmlSpot = (row, col) => document.querySelector(`[row="${row}"][col="${col}"]`)
 
 const clearSpaces = (row, col) => {
-    if (--clear_steps < 0) {
+    if (--clearSteps < 0) {
+        clearSteps = 5;
         return;
     }
 
@@ -43,7 +47,8 @@ const clearSpaces = (row, col) => {
     current.setAttribute("status", "reveled")
     
     if (current.getAttribute("num") !== "0") {
-        current.innerText = current.getAttribute("num")
+        current.querySelector("span").className = "game-font";
+        writeText(current, current.getAttribute("num"))
         return;
     }
     
@@ -97,8 +102,15 @@ const clearSpaces = (row, col) => {
 }
   
 const spotClicked = (e) => {
-    let row = e.getAttribute("row")
-    let col = e.getAttribute("col")
+    e.stopPropagation()
+    const element = e.currentTarget
+
+    let row = element.getAttribute("row")
+    let col = element.getAttribute("col")
+
+    if (element.getAttribute("data-flagged") === "true") {
+        return
+    }
 
     if (fieldData[row][col] == 1) {
         explodeField()
@@ -106,12 +118,34 @@ const spotClicked = (e) => {
     }
 
     clearSpaces(row, col)
-    clear_steps = 20;
+    clearSteps = 5;
+}
+
+const rightClicked = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const element = e.currentTarget;
+
+    if (element.getAttribute("status") === "reveled" || element.getAttribute("num") == null) {
+        return
+    }
+    
+    if (element.getAttribute("data-flagged") === "true") {
+        element.setAttribute("data-flagged", false);
+        writeText(element, "")
+
+        return
+    }
+    
+    writeText(element, "flag")
+    element.setAttribute("data-flagged", true)
 }
 
 const startSpots = () => {
     document.querySelectorAll(".spot").forEach( x => {
-        x.addEventListener("click", x => spotClicked(x.target));
+        x.addEventListener("click", spotClicked);
+        x.addEventListener("contextmenu", rightClicked)
     })
 }
 
@@ -127,17 +161,23 @@ const generateBombs = () => {
 const countBombsAround = (row, col) => {
     let count = 0;
 
+    if (col - 1 >= 0) {
+        count += fieldData[row][col-1];
+    }
+
+    if (col + 1 < fieldWidth) {
+        count += fieldData[row][col+1];
+    }
+
     if (row - 1 >= 0) {
         count += fieldData[row-1][col];
 
         if (col - 1 >= 0) {
             count += fieldData[row-1][col-1];
-            count += fieldData[row][col-1];
         }
         
         if (col + 1 < fieldWidth) {
             count += fieldData[row-1][col+1];
-            count += fieldData[row][col+1];
         }
     }
 
@@ -177,7 +217,11 @@ document.addEventListener("DOMContentLoaded", () => {
         row.classList.add("grid-row");
         
         for (let j = 0; j < fieldHeight; j++) {
-            row.insertAdjacentHTML("beforeend", `<div class="spot" row="${i}" col="${j}" status="hidden"></div>`);
+            row.insertAdjacentHTML("beforeend", `
+                <div class="spot" row="${i}" col="${j}" status="hidden" data-flagged="false">
+                    <span class="material-symbols-outlined"></span>
+                </div>
+                `);
         }
 
         fieldGrid.appendChild(row);
