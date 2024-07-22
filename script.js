@@ -127,7 +127,7 @@ const rightClicked = (e) => {
 
     const element = e.currentTarget;
 
-    if (element.getAttribute("status") === "reveled" || element.getAttribute("num") == null) {
+    if (element.getAttribute("status") === "reveled") {
         return
     }
     
